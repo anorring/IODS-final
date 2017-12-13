@@ -12,10 +12,11 @@ library(stringr)
 ###                                 DATA WRANGLING for Final Assignment                                            ###
 ######################################################################################################################
 
-### NOTE: This script follows quite closely to the one made for RStudio exercises 4 and 5 until. 
+### NOTE: This script follows quite closely to the one I made for RStudio exercises 4 and 5. 
 ###       The main difference is that here I do not exclude any of the variables (i.e. after part 6 there is no
 ###       "excluding unneeded variables" part) and that I create a variable that takes value 0 if the mean years of 
-###       schooling of a given country is less than average and value 1 if it is more than average. 
+###       schooling of a given country is less than average and value 1 if it is more than average. I also exclude 
+###       the observations related to regions instead of countries in a more intuitive spot.
 
 
 ######################################################################################################################
@@ -206,7 +207,7 @@ glimpse(human_)
 
 ######################################################################################################################
 
-### 10. Finishing touches: define country names as row names and remove the country name columm before saving the data
+### 8. Finishing touches: define country names as row names and remove the country name columm before saving the data
 
 # Defining countries as rownames is easy:
 rownames(human_) <- human_$Country
