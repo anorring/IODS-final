@@ -3,7 +3,7 @@ title: "The Final Assignment of IODS2017"
 author: 
 - name: "Anni Norring"
   affiliation: "anni.norring@helsinki.fi"
-date: "13 joulukuuta 2017"
+date: "December 13th 2017"
 output:
   html_document:
     theme: cosmo
