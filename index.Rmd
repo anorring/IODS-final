@@ -19,6 +19,7 @@ output:
 
 # Access the needed libraries:
 library(dplyr)
+library(pander)
 library(tidyr)
 library(ggplot2)
 library(boot)
@@ -113,9 +114,17 @@ In the table below, we have a list of all the 19 variables and a brief explanati
 |Labo.FM|The ratio between the shares of female and male labour force participation rate|
 
 
-
-
 # 5. Exploring the data
+
+The aim of this part is to identify, which variables are most likely to have a meaningful effect on our dependent variable Edu.high.
+
+From the summary of the variables we can see minimum, maximum, median and mean values as well as the 1st and 3rd quartiles of the variables. By looking at the minimum and maximum values we can see that the countries in our data set differ quite a lot with respect to all eight variables. 
+
+```{r, warning=FALSE}
+library(pander)
+pandoc.table(summary(human), caption = "Summary of variables", split.table = 100)
+```
+
 
 
 
