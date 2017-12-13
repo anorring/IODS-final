@@ -142,11 +142,12 @@ $(document).ready(function () {
 <div id="TOC">
 <ul>
 <li><a href="#introduction">1. Introduction</a></li>
-<li><a href="#research-question">2. Research question</a><ul>
-<li><a href="#why-do-some-countries-manage-to-educate-their-citizens-more-than-others">Why do some countries manage to educate their citizens more than others?</a></li>
-</ul></li>
+<li><a href="#research-question-why-do-some-countries-manage-to-educate-their-citizens-more-than-others">2. Research question: Why do some countries manage to educate their citizens more than others?</a></li>
 <li><a href="#data-wrangling">3. Data wrangling</a></li>
-<li><a href="#describing-the-data">4. Describing the data</a></li>
+<li><a href="#describing-the-data-new-variables-new-horizons">4. Describing the data: new variables, new horizons</a><ul>
+<li><a href="#changes-to-the-data">Changes to the data</a></li>
+<li><a href="#variables">Variables</a></li>
+</ul></li>
 <li><a href="#exploring-the-data">5. Exploring the data</a></li>
 <li><a href="#methods">6. Methods</a></li>
 <li><a href="#results">7. Results</a></li>
@@ -157,10 +158,8 @@ $(document).ready(function () {
 <div id="introduction" class="section level1">
 <h1>1. Introduction</h1>
 </div>
-<div id="research-question" class="section level1">
-<h1>2. Research question</h1>
-<div id="why-do-some-countries-manage-to-educate-their-citizens-more-than-others" class="section level2">
-<h2>Why do some countries manage to educate their citizens more than others?</h2>
+<div id="research-question-why-do-some-countries-manage-to-educate-their-citizens-more-than-others" class="section level1">
+<h1>2. Research question: Why do some countries manage to educate their citizens more than others?</h1>
 <p>In this my final assignment I will try to find out whether the differences in mean years of schooling across different countries can be explained by some of the other variables included in the United Nations Development Programme data on Human Development Index and Gender Inequality Index. That is, my research question is:</p>
 <blockquote>
 <p>What explains the differences in mean years of schooling across different countries?</p>
@@ -173,16 +172,17 @@ $(document).ready(function () {
 <p>Then I will run a logistic regression, where this new variable is the dependent variable. I will choose the independent variables according to analysis on the characteristics and correlations in the data, done in part 5.</p>
 <p>My initial hypothesis is that Gross National Income (GNI) per capita will greatly determine the mean years of schooling of a given country. However, it is important to remember that correlation and causality are not equivalent and in this case the causality most probably runs both ways. But let’s see what we can find out!</p>
 </div>
-</div>
 <div id="data-wrangling" class="section level1">
 <h1>3. Data wrangling</h1>
 <p>The data I will utilise comes from the Human Development Index (HDI) and the Gender Inequality Index (GII), which are both compiled by the United Nations Development programme.</p>
-<p><strong>For this final assignment, you can find my data wrangling R script from <a href="https://github.com/anorring/IODS-final/blob/master/create_final_human.R">here</a> and my preprocessed data set from <a href="https://github.com/anorring/IODS-final/blob/master/human.csv">here</a>.</strong></p>
+<p><strong>For this final assignment, you can find my data wrangling R script from <a href="https://github.com/anorring/IODS-final/blob/master/create_final_human.R">here</a> and my preprocessed data set from <a href="https://github.com/anorring/IODS-final/blob/master/humanfinal.csv">here</a>.</strong></p>
 <p>We worked with these data sets during the last two weeks of assignments. You can find the <a href="https://github.com/anorring/IODS-project/blob/master/human.csv">preprocessed data set</a> and the <a href="https://github.com/anorring/IODS-project/blob/master/data/create_human.R">data wrangling R script</a> associated with the assignments from my <a href="https://github.com/anorring/IODS-project/tree/master/data">GitHub repository</a>. From the base data downloaded from the UN to this version of the data set, the data has gone through quite a lot. However, I will create a new data set almost from scratch, because my variable of interest, mean years of schooling, was excluded from this version of the data.</p>
 </div>
-<div id="describing-the-data" class="section level1">
-<h1>4. Describing the data</h1>
-<p>As mentioned above, the data is a joined and modified data set, that combines information from the Human Development Index (HDI) and the Gender Inequality Index (GII), which are both compiled by the United Nations Development programme. More information of the data, its compilation and composition can be found via the followign links: <a href="http://hdr.undp.org/en/composite/HDI">here on HDI</a> and <a href="http://hdr.undp.org/en/composite/GII">here on GII</a>.</p>
+<div id="describing-the-data-new-variables-new-horizons" class="section level1">
+<h1>4. Describing the data: new variables, new horizons</h1>
+<p>The data is a joined and modified data set, that combines information from the Human Development Index (HDI) and the Gender Inequality Index (GII), which are both compiled by the United Nations Development programme. More information of the data, its compilation and composition can be found via the followign links: <a href="http://hdr.undp.org/en/composite/HDI">here on HDI</a> and <a href="http://hdr.undp.org/en/composite/GII">here on GII</a>.</p>
+<div id="changes-to-the-data" class="section level2">
+<h2>Changes to the data</h2>
 <p>The following steps are the most important changes to the original UN data:</p>
 <ul>
 <li><strong>one new variable was created and included in the HDI data set: a dichotomous variable taking value 1 when a country provides longer than average schooling for its citizens and value 0 when the years of schooling are less than the average</strong></li>
@@ -193,7 +193,7 @@ $(document).ready(function () {
 </ul>
 <p>Let’s start by loading the preprocessed “human” data into R and taking a look at it’s general appearance.</p>
 <pre class="r"><code># load the data
-human &lt;- read.table(file = &quot;human.csv&quot;, sep = &quot;,&quot;, header = TRUE)
+human &lt;- read.table(file = &quot;humanfinal.csv&quot;, sep = &quot;,&quot;, header = TRUE)
 
 # glimpse at the dataset
 glimpse(human)</code></pre>
@@ -206,7 +206,7 @@ glimpse(human)</code></pre>
 ## $ Edu.Mean           &lt;dbl&gt; 12.6, 13.0, 12.8, 12.7, 11.9, 13.1, 12.2, 1...
 ## $ GNI                &lt;int&gt; 64992, 42261, 56431, 44025, 45435, 43919, 3...
 ## $ diffGNIrankHDIrank &lt;int&gt; 5, 17, 6, 11, 9, 11, 16, 3, 11, 23, -7, -1,...
-## $ Edu.high           &lt;lgl&gt; TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, T...
+## $ Edu.high           &lt;int&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1...
 ## $ GIIrank            &lt;int&gt; 1, 2, 3, 4, 5, 6, 6, 8, 9, 9, 11, 14, 14, 1...
 ## $ GII                &lt;dbl&gt; 0.067, 0.110, 0.028, 0.048, 0.062, 0.041, 0...
 ## $ Mat.Mor            &lt;int&gt; 4, 6, 6, 5, 6, 7, 9, 28, 11, 8, 6, 4, 8, 4,...
@@ -218,7 +218,11 @@ glimpse(human)</code></pre>
 ## $ Labo.M             &lt;dbl&gt; 68.7, 71.8, 74.9, 66.4, 70.6, 66.4, 68.1, 6...
 ## $ Edu2.FM            &lt;dbl&gt; 1.0072389, 0.9968288, 0.9834369, 0.9886128,...
 ## $ Labo.FM            &lt;dbl&gt; 0.8908297, 0.8189415, 0.8251001, 0.8840361,...</code></pre>
-<p>From glimpsing the data we can see that it contains 155 observations on 8 variables. We can also see that all of the variables have numerical values. Every row in the data is associated with one country, thus we have observations from 155 different countries. From the webpages linked above we can see that most of the variables are observed in the year 2015, but the variable that measures the secondary education is measured over years 2005-2015.</p>
+<p>From glimpsing the data we can see that it contains 155 observations on 19 variables. We can also see that all of the variables have numerical values. Our dichotomous dependent variable, Edu.high, is also quite easy to spot. Every row in the data is associated with one country, thus we have observations from 155 different countries. From the webpages linked above we can see that most of the variables are observed in the year 2015, but the variable that measures the secondary education is measured over years 2005-2015.</p>
+</div>
+<div id="variables" class="section level2">
+<h2>Variables</h2>
+<p>In the table below, we have a list of all the 19 variables and a brief explanation of what the variables represent:</p>
 <table>
 <colgroup>
 <col width="4%"></col>
@@ -232,39 +236,84 @@ glimpse(human)</code></pre>
 </thead>
 <tbody>
 <tr class="odd">
-<td>Edu2.FM</td>
-<td>The ratio between the shares of female and male population with at least some secondary education</td>
+<td>HDIrank</td>
+<td>Ranking in the Human Development Index</td>
 </tr>
 <tr class="even">
-<td>Labo.FM</td>
-<td>The ratio between the shares of female and male labour force participation rate</td>
+<td>HDI</td>
+<td>Human Development Index, value</td>
 </tr>
 <tr class="odd">
-<td>Edu.Exp</td>
-<td>Expected years of schooling, years</td>
-</tr>
-<tr class="even">
 <td>Life.Exp</td>
 <td>Life expectancy at birth, years</td>
 </tr>
+<tr class="even">
+<td>Edu.Exp</td>
+<td>Expected years of schooling, years</td>
+</tr>
 <tr class="odd">
+<td>Edu.Mean</td>
+<td>Mean years of schooling, years</td>
+</tr>
+<tr class="even">
 <td>GNI</td>
 <td>Gross national income (GNI) per capita, 2011 PPP $</td>
 </tr>
+<tr class="odd">
+<td>diffGNIrankHDIrank</td>
+<td>GNI per capita rank minus HDI rank</td>
+</tr>
 <tr class="even">
+<td>Edu.high</td>
+<td>A dummy taking value 1, if country has higher than average mean years of schooling, value 0 otherwise</td>
+</tr>
+<tr class="odd">
+<td>GIIrank</td>
+<td>Ranking in the Gender Inequality Index</td>
+</tr>
+<tr class="even">
+<td>GII</td>
+<td>Gender Inequality Index, value</td>
+</tr>
+<tr class="odd">
 <td>Mat.Mor</td>
 <td>Maternal mortality ratio, deaths per 100,000 live births</td>
 </tr>
-<tr class="odd">
-<td>Ado.Birth</td>
-<td>Adolescent birth rate, births per 1,000 women ages 15â“19</td>
-</tr>
 <tr class="even">
+<td>Ado.Birth</td>
+<td>Adolescent birth rate, births per 1,000 women ages 15-19</td>
+</tr>
+<tr class="odd">
 <td>Parli.F</td>
 <td>Share of seats in parliament, % held by women</td>
 </tr>
+<tr class="even">
+<td>Edu2.F</td>
+<td>Female opulation with at least some secondary education, % ages 25 and older</td>
+</tr>
+<tr class="odd">
+<td>Edu2.M</td>
+<td>Male opulation with at least some secondary education, % ages 25 and older</td>
+</tr>
+<tr class="even">
+<td>Labo.F</td>
+<td>Female labour force participation rate, % ages 15 and older</td>
+</tr>
+<tr class="odd">
+<td>Labo.M</td>
+<td>Male labour force participation rate, % ages 15 and older</td>
+</tr>
+<tr class="even">
+<td>Edu2.FM</td>
+<td>The ratio between the shares of female and male population with at least some secondary education</td>
+</tr>
+<tr class="odd">
+<td>Labo.FM</td>
+<td>The ratio between the shares of female and male labour force participation rate</td>
+</tr>
 </tbody>
 </table>
+</div>
 </div>
 <div id="exploring-the-data" class="section level1">
 <h1>5. Exploring the data</h1>
