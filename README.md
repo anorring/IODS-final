@@ -2,3 +2,5 @@
 Repository for the final assignment of IODS2017.
 
 In this final assignment for the Introduction to Open Data Science 2017 I will consider logistic regression using the "human" data.
+
+You can find my analysis at <https://anorring.github.io/IODS-final/>.
