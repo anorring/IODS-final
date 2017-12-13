@@ -15,6 +15,20 @@ output:
     code_folding: hide
 ---
 
+```{r, include=FALSE}
+
+# Access the needed libraries:
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(boot)
+library(MASS)
+library(tidyverse)
+library(corrplot)
+library(GGally)
+library(FactoMineR)
+```
+
 # 1. Introduction
 
 
@@ -23,7 +37,9 @@ output:
 
 ## Why do some countries manage to educate their citizens more than others?
 
-In this my final assignment I will try to fnd wheter the differences in mean years of schooling between different countries can be explained by some of the other variables included in the United Nations Development Programme data on Human Development Index and Gender Inequality Index. 
+In this my final assignment I will try to find out whether the differences in mean years of schooling across different countries can be explained by some of the other variables included in the United Nations Development Programme data on Human Development Index and Gender Inequality Index. That is, my research question is:
+
+> What explains the differences in mean years of schooling across different countries?
 
 I will create a dichotomous dependent variable by 
 
@@ -37,19 +53,48 @@ My initial hypothesis is that Gross National Income (GNI) per capita will greatl
 
 # 3. Data wrangling
 
-The data I will utilise comes from the the Human Development Index (HDI) and the Gender Inequality Index (GII), which are both compiled by the United Nations Development programme. More information of the data, its compilation and composition can be found via the followign links: [here on HDI](http://hdr.undp.org/en/composite/HDI) and [here on GII](http://hdr.undp.org/en/composite/GII). 
+The data I will utilise comes from the Human Development Index (HDI) and the Gender Inequality Index (GII), which are both compiled by the United Nations Development programme. 
 
-We worked with these data sets during the last two weeks of assignments. You can find this [preprocessed data set](https://github.com/anorring/IODS-project/blob/master/human.csv) and the [data wrangling R script](https://github.com/anorring/IODS-project/blob/master/data/create_human.R) from my [GitHub repository.](https://github.com/anorring/IODS-project/tree/master/data). From the base data downloaded from the UN to this version of the data set, the data has gone through quite a lot. However, I will create a new data set almost from scratch, because my variable of interest, mean years of schooling, was excluded from this version of the data. 
+**For this final assignment, you can find my data wrangling R script from [here](https://github.com/anorring/IODS-final/blob/master/create_final_human.R) and my preprocessed data set from [here](https://github.com/anorring/IODS-final/blob/master/human.csv).**
 
-For this final assignment, you can find my data wrangling R script from [here]() and my preprocessed data set from [here](). The following steps are the most important changes to the original data:
+We worked with these data sets during the last two weeks of assignments. You can find the [preprocessed data set](https://github.com/anorring/IODS-project/blob/master/human.csv) and the [data wrangling R script](https://github.com/anorring/IODS-project/blob/master/data/create_human.R) associated with the assignments from my [GitHub repository](https://github.com/anorring/IODS-project/tree/master/data). From the base data downloaded from the UN to this version of the data set, the data has gone through quite a lot. However, I will create a new data set almost from scratch, because my variable of interest, mean years of schooling, was excluded from this version of the data.
 
-- two new variables were created (the ratio of female and male populations with secondary education in each country and a similar ratio for labor force participation) and icluded in the GII data set to account for gender inequality
-- the HDI and the GII data sets were combined using country as an identifier
-- missing values and observations related to regions instead of countries were removed
-- country names were defined as row names and the country name column was removed
 
 # 4. Describing the data
 
+As mentioned above, the data is a joined and modified data set, that combines information from the Human Development Index (HDI) and the Gender Inequality Index (GII), which are both compiled by the United Nations Development programme. More information of the data, its compilation and composition can be found via the followign links: [here on HDI](http://hdr.undp.org/en/composite/HDI) and [here on GII](http://hdr.undp.org/en/composite/GII). 
+
+The following steps are the most important changes to the original UN data:
+
+- **one new variable was created and included in the HDI data set: a dichotomous variable taking value 1 when a country provides longer than average schooling for its citizens and value 0 when the years of schooling are less than the average**
+- two new variables were created (the ratio of female and male populations with secondary education in each country and a similar ratio for labor force participation) and included in the GII data set to account for gender inequality
+- the HDI and the GII data sets were combined using country name as an identifier
+- missing values and observations related to regions instead of countries were removed
+- country names were defined as row names and the country name column was removed
+
+
+Let's start by loading the preprocessed "human" data into R and taking a look at it's general appearance. 
+
+```{r}
+# load the data
+human <- read.table(file = "human.csv", sep = ",", header = TRUE)
+
+# glimpse at the dataset
+glimpse(human)
+```
+
+From glimpsing the data we can see that it contains 155 observations on 8 variables. We can also see that all of the variables have numerical values. Every row in the data is associated with one country, thus we have observations from 155 different countries. From the webpages linked above we can see that most of the variables are observed in the year 2015, but the variable that measures the secondary education is measured over years 2005-2015. 
+
+|Variable|Definition
+|---|------------------------------------------------------------------------------------|
+|Edu2.FM |The ratio between the shares of female and male population with at least some secondary education|
+|Labo.FM|The ratio between the shares of female and male labour force participation rate|
+|Edu.Exp|Expected years of schooling, years|
+|Life.Exp|Life expectancy at birth, years| 
+|GNI|Gross national income (GNI) per capita, 2011 PPP $| 
+|Mat.Mor|Maternal mortality ratio, deaths per 100,000 live births|
+|Ado.Birth|Adolescent birth rate, births per 1,000 women ages 15–19|
+|Parli.F|Share of seats in parliament, % held by women|
 
 
 # 5. Exploring the data

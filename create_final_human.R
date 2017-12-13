@@ -135,6 +135,11 @@ hd <- mutate(hd, Edu.high = Edu.Mean > 8.1)
 hd$Edu.Mean
 hd$Edu.high
 
+# We still want the variable to take values 0/1 instead of FALSE/TRUE. Let's use the ifelse()-function to define this.
+
+hd$Edu.high <- ifelse(hd$Edu.high == FALSE, 0, 1)
+hd$Edu.high
+
 # Now we have created two new variables into GII data set and one new (the most important one) into HD data set.
 
 ######################################################################################################################
@@ -225,10 +230,10 @@ glimpse(human_)
 setwd("\\\\ATKK/home/a/awsalo/Documents/GitHub/IODS-final")
 
 # Save the data set:
-write.table(human_, file = "human.csv", sep = ",", col.names = TRUE, row.names = TRUE )
+write.table(human_, file = "humanfinal.csv", sep = ",", col.names = TRUE, row.names = TRUE )
 
 # Read the data once again to R just to make sure that it looks good:
-human <- read.table(file = "human.csv", sep = ",", header = TRUE)
+human <- read.table(file = "humanfinal.csv", sep = ",", header = TRUE)
 
 glimpse(human)
 
