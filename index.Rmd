@@ -1,30 +1,69 @@
 ---
-title: "IODS-final"
-author: "Anni Norring"
+title: "The Final Assignment of IODS2017"
+author: 
+- name: "Anni Norring"
+  affiliation: "anni.norring@helsinki.fi"
 date: "13 joulukuuta 2017"
-output: html_document
+output:
+  html_document:
+    theme: cosmo
+    toc: true
+    toc_depth: 2
+    fig_caption: true
+    fig_width: 6
+    fig_height: 4
+    code_folding: hide
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
+# 1. Introduction
 
-## R Markdown
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+# 2. Research question
 
-```{r cars}
-summary(cars)
-```
+## Why do some countries manage to educate their citizens more than others?
 
-## Including Plots
+In this my final assignment I will try to fnd wheter the differences in mean years of schooling between different countries can be explained by some of the other variables included in the United Nations Development Programme data on Human Development Index and Gender Inequality Index. 
 
-You can also embed plots, for example:
+I will create a dichotomous dependent variable by 
 
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
+1. calculating the average of mean years of schooling 
+2. and creating a new variable that takes value 0 if the mean years of schooling of a given country is less than average and value 1 if it is more than average. 
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+Then I will run a logistic regression, where this new variable is the dependent variable. I will choose the independent variables according to analysis on the characteristics and correlations in the data, done in part 5.
+
+My initial hypothesis is that Gross National Income (GNI) per capita will greatly determine the mean years of schooling of a given country. However, it is important to remember that correlation and causality are not equivalent and in this case the causality most probably runs both ways. But let's see what we can find out!
+
+
+# 3. Data wrangling
+
+The data I will utilise comes from the the Human Development Index (HDI) and the Gender Inequality Index (GII), which are both compiled by the United Nations Development programme. More information of the data, its compilation and composition can be found via the followign links: [here on HDI](http://hdr.undp.org/en/composite/HDI) and [here on GII](http://hdr.undp.org/en/composite/GII). 
+
+We worked with these data sets during the last two weeks of assignments. You can find this [preprocessed data set](https://github.com/anorring/IODS-project/blob/master/human.csv) and the [data wrangling R script](https://github.com/anorring/IODS-project/blob/master/data/create_human.R) from my [GitHub repository.](https://github.com/anorring/IODS-project/tree/master/data). From the base data downloaded from the UN to this version of the data set, the data has gone through quite a lot. However, I will create a new data set almost from scratch, because my variable of interest, mean years of schooling, was excluded from this version of the data. 
+
+For this final assignment, you can find my data wrangling R script from [here]() and my preprocessed data set from [here](). The following steps are the most important changes to the original data:
+
+- two new variables were created (the ratio of female and male populations with secondary education in each country and a similar ratio for labor force participation) and icluded in the GII data set to account for gender inequality
+- the HDI and the GII data sets were combined using country as an identifier
+- missing values and observations related to regions instead of countries were removed
+- country names were defined as row names and the country name column was removed
+
+# 4. Describing the data
+
+
+
+# 5. Exploring the data
+
+
+
+# 6. Methods
+
+
+
+# 7. Results
+
+
+
+# 8. Conclusions and discussion
+
+
