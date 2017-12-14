@@ -137,8 +137,8 @@ hd$Edu.high
 
 # We still want the variable to take values 0/1 instead of FALSE/TRUE. Let's use the ifelse()-function to define this.
 
-hd$Edu.high <- ifelse(hd$Edu.high == FALSE, 0, 1)
-hd$Edu.high
+# hd$Edu.high <- ifelse(hd$Edu.high == FALSE, 0, 1)
+# hd$Edu.high
 
 # Now we have created two new variables into GII data set and one new (the most important one) into HD data set.
 

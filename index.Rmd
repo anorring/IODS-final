@@ -47,7 +47,13 @@ I will create a dichotomous dependent variable by
 
 Then I will run a logistic regression, where this new variable is the dependent variable. I will choose the independent variables according to analysis on the characteristics and correlations in the data, done in part 5.
 
-My initial hypothesis is that Gross National Income (GNI) per capita will greatly determine the mean years of schooling of a given country. However, it is important to remember that correlation and causality are not equivalent and in this case the causality most probably runs both ways. But let's see what we can find out!
+My initial hypothesis are the following: 
+
+- countries with high gross national income (GNI) have higher than average years of schooling, i.e. positive correlation between variables GNI and Edu.high
+- countries with higher share of population has secondary schooling have higher average years of schooling, i.e. positive correlation between variables Edu2.F, Edu2.M and Edu.high
+- countries with higher life expectancy at birth have higher than average years of schooling, i.e. positive correlation between Life.Exp and Edu.high
+
+However, it is important to remember that correlation and causality are not equivalent and in this case the causality most probably runs both ways. But let's see what we can find out!
 
 
 # 3. Data wrangling
@@ -106,8 +112,8 @@ In the table below, we have a list of all the 19 variables and a brief explanati
 |Mat.Mor|Maternal mortality ratio, deaths per 100,000 live births|
 |Ado.Birth|Adolescent birth rate, births per 1,000 women ages 15-19|
 |Parli.F|Share of seats in parliament, % held by women|
-|Edu2.F|Female opulation with at least some secondary education, % ages 25 and older|
-|Edu2.M|Male opulation with at least some secondary education, % ages 25 and older|
+|Edu2.F|Female population with at least some secondary education, % ages 25 and older|
+|Edu2.M|Male population with at least some secondary education, % ages 25 and older|
 |Labo.F|Female labour force participation rate, % ages 15 and older|
 |Labo.M|Male labour force participation rate, % ages 15 and older|
 |Edu2.FM |The ratio between the shares of female and male population with at least some secondary education|
@@ -116,20 +122,222 @@ In the table below, we have a list of all the 19 variables and a brief explanati
 
 # 5. Exploring the data
 
-The aim of this part is to identify, which variables are most likely to have a meaningful effect on our dependent variable Edu.high.
+The most important aim of this part is to identify which variables are most likely to have a meaningful effect on our dependent variable Edu.high. We will choose those variables as the independent variables for our logistic regression.
 
-From the summary of the variables we can see minimum, maximum, median and mean values as well as the 1st and 3rd quartiles of the variables. By looking at the minimum and maximum values we can see that the countries in our data set differ quite a lot with respect to all eight variables. 
+## Summary of the variables
+
+From the summary of the variables we can see minimum, maximum, median and mean values as well as the 1st and 3rd quartiles of the variables. By looking at the minimum and maximum values we can see that the countries in our data set differ quite a lot with respect to all variables. 
 
 ```{r, warning=FALSE}
 library(pander)
 pandoc.table(summary(human), caption = "Summary of variables", split.table = 100)
 ```
+## Visualizing the distributions of the variables
+
+To get a better sense of the characteristics of the different variables, we can visualize the variables in a number of ways. Let's start with looking at the distribution of our dependent variable, Edu.high. We can see that the observations are quite evenly distributed across value FALSE and TRUE, which is what we should have, given the definition of our variable.
+
+```{r}
+
+ggplot(data = human, aes(x = Edu.high)) + geom_bar()
+
+```
+
+Next we can draw simple density plots for our continuous variables to get a clear perspective on their distributions. we can see that not really a signle one of our variables has a distribution resembling a normal distribution. Instead, some of the variables have very skewed distributions and some display high kurtosis.
+
+```{r, include=FALSE}
+colnames(human)
+```
+
+```{r fig.height=9, fig.width=9}
+# Start with choosing the columns with continuous variables:
+continuous <- c("HDI","Life.Exp","Edu.Exp", "Edu.Mean", "GNI", "diffGNIrankHDIrank", "GII", "Mat.Mor", "Ado.Birth", "Parli.F", "Edu2.F", "Edu2.M", "Labo.F", "Labo.M", "Edu2.FM", "Labo.FM")
+
+# select the 'keep_columns' to create a new dataset
+human_cont <- dplyr::select(human, one_of(continuous))
+
+# Draw the plots:
+human_cont %>%
+  gather() %>%                      
+  ggplot(aes(value)) + facet_wrap(~ key, scales = "free") + geom_density()
+
+```
+
+*(Note that there is no point in drawing a bar plot or a density plot for variables HDIrank and GIIrank, as these are simply rankings of the different countries in our data set.)*
+
+Let's also print box plots of the continuous variables. Recall that in a box plot the bottom and top of the box represent the first and third quartiles, and the band inside the box represents the median. The whiskers indicate variability outside the quartiles and outliers are represented by the individual dots.
+
+```{r, include=FALSE}
+
+colnames(human_cont)
+
+```
+
+```{r fig.height=9, fig.width=9}
+par(mfrow=c(2,3))
+boxplot(human$HDI,col="lightblue",main="Human Development Index")
+boxplot(human$Life.Exp,col="lightblue",main="Life expectancy at birth")
+boxplot(human$Edu.Exp,col="lightblue",main="Expected years of schooling")
+boxplot(human$Edu.Mean,col="lightblue",main="Mean years of schooling")
+boxplot(human$GNI,col="lightblue",main="GNI per capita")
+boxplot(human$diffGNIrankHDIrank,col="lightblue",main="GNI rank - HDI rank")
+boxplot(human$GII,col="lightblue",main="Gender Inequality Index")
+boxplot(human$Mat.Mor,col="lightblue",main="Maternal mortality ratio")
+boxplot(human$Ado.Birth,col="lightblue",main="Adolescent birth rate")
+boxplot(human$Parli.F,col="lightblue",main="Share of F in parliament")
+boxplot(human$Edu2.F,col="lightblue",main="F population with secondary education")
+boxplot(human$Edu2.M,col="lightblue",main="M population with secondary education")
+boxplot(human$Labo.F,col="lightblue",main="F labour force participation rate")
+boxplot(human$Labo.M,col="lightblue",main="M labour force participation rate")
+boxplot(human$Edu2.FM,col="lightblue",main="F/M educational ratio")
+boxplot(human$Labo.FM,col="lightblue",main="F/M labor force participation ratio")
 
 
+```
+
+## Visualizing the relationships between the variables
+
+Next let's move on to study the relations between the variables to find candidates for our logistic model. We will draw different visualizations of the data: scatterplots and a correlation plot. From the pairwise scatterplots we can immediately spot some clear correlations, but these are more easily grasped from the correlation plot.
+
+```{r fig.height=9, fig.width=9}
+#scatterplots
+pairs(human,lower.panel = NULL)
+
+#correlation plot
+cor_matrix<-cor(human) %>% round(2)
+corrplot.mixed(cor_matrix,number.cex=0.65,tl.cex=0.6)
+
+```
+
+From the correlation plot we can easily see that there are a number of variables we could drop in order to simplify our analysis, as there appears to be not much correlatin with our variable of interest, Edu.high. These variables the share of female representation in parliament (Parli.F), female labor force participation (Labo.F) and F/M labor force participation ratio. The correlation between male labor force participation and Edu.high is also quite low, so we'll drop Labo.M also. We will also drop variables related to the HDI index (HDI, HDIrank and diffGNIrankHDIrank), because mean years of schooling is a component of these, and we wish to avoid endogeneity issues. For the same reason, let's drop expected years of schooling and mean years of schooling (Edu.Exp and Edu.Mean).
+
+Thus we are left with the following variables:
+
+|Variable|Definition
+|---|------------------------------------------------------------------------------------|
+|Life.Exp|Life expectancy at birth, years|
+|GNI|Gross national income (GNI) per capita, 2011 PPP $|
+|Edu.high|A dummy taking value 1, if country has higher than average mean years of schooling, value 0 otherwise|
+|GIIrank|Ranking in the Gender Inequality Index|
+|GII|Gender Inequality Index, value|
+|Mat.Mor|Maternal mortality ratio, deaths per 100,000 live births|
+|Ado.Birth|Adolescent birth rate, births per 1,000 women ages 15-19|
+|Edu2.F|Female population with at least some secondary education, % ages 25 and older|
+|Edu2.M|Male population with at least some secondary education, % ages 25 and older|
+|Edu2.FM|The ratio between the shares of female and male population with at least some secondary education|
+
+Let's the modify our data set accordingly and see if we can make out some clearer relationships between the variables:
+
+```{r}
+# Modify the data set:
+
+# choose a handful of columns to keep
+keep_columns <- c("Life.Exp", "GNI", "Edu.high", "GIIrank", "GII", "Mat.Mor", "Ado.Birth", "Edu2.F", "Edu2.M", "Edu2.FM")
+
+# select the 'keep_columns' to create a new dataset
+human_ <- dplyr::select(human, one_of(keep_columns))
+
+glimpse(human_)
+
+```
+
+Now we are down to 155 observations and 10 variables. Let's visualize the relationships between variables in this version of the data set with a correlation plot:
+
+```{r fig.height=9, fig.width=9}
+
+#correlation plot
+cor_matrix<-cor(human_) %>% round(2)
+corrplot.mixed(cor_matrix,number.cex=0.65,tl.cex=0.6)
+
+```
+
+From the much simplified correlation plot above, we can see that the variables that display highest absolute correlation with Edu.high are share of both female and male population who recieve at least some secondary education (positive correlation), the Gender Inequality Index ranking and value of the country (negative correlation) and life expectancy (positive correlation). These are all perfectly plausible and intuitive relationships: it means that a country that manages to educate a larger share of its population, that treats its male and female citizens relatively equally and has high standards of living in terms of life expectancy will manage to keep its citizens in school for longer. Interestingly, contrary to our initial hypothesis, gross national income displays the lowest correlation with Edu.high among these variables. 
+
+## Simplifying things
+
+For the purpose of our logistic regression, we will further drop variable GIIrank, because it essentially measures the same thing as GII.
+
+
+```{r}
+# Modify the data set further:
+
+# choose a handful of columns to keep
+keep_columns <- c("Life.Exp", "GNI", "Edu.high", "GII", "Mat.Mor", "Ado.Birth", "Edu2.F", "Edu2.M", "Edu2.FM")
+
+# select the 'keep_columns' to create a new dataset
+human_edu <- dplyr::select(human, one_of(keep_columns))
+
+glimpse(human_edu)
+
+```
+
+For the sake of further visualization, let's draw one more plot on the variables. 
+
+```{r fig.height=9, fig.width=9}
+ggpairs(human_edu, mapping = aes(alpha = 0.3), lower = list(combo = wrap("facethist")), title ="Graphical overview of the nine variables left")
+
+```
+
+From here we can see that the correlation between GNI and Edu.high drops further still. Also variable Edu2.FM displays relatively low correlation with Edu.high. Thus these two do not seem like the best candidates for the independent variables in our logistic regression with Edu.high as the dependent variable.
+
+## Choosing the independent variables and formulating hypothesis
+
+Based on this analysis we will choose our independent variables to be the following:
+
+|Variable|Definition|sign of correlation|
+|---|------------------------------------------------------------------------------------|-----|
+|Life.Exp|Life expectancy at birth, years|positive
+|GII|Gender Inequality Index, value|negative|
+|Mat.Mor|Maternal mortality ratio, deaths per 100,000 live births|negative|
+|Ado.Birth|Adolescent birth rate, births per 1,000 women ages 15-19|negative|
+|Edu2.F|Female population with at least some secondary education, % ages 25 and older|positive|
+|Edu2.M|Male population with at least some secondary education, % ages 25 and older|positive|
+
+Let's formulate our **hypothesis** as: the mean years of schooling is likely to be higher than average in countries
+
+- where there is gender equality, reflected by a low GII index
+- where a larger share of especially the female, but also male population receives secondary education
+- where social norms encourage staying in school, reflected by low rates of adolescent births
+- where health care is adequate, reflected my low rates of maternal mortality
+
+## A closer on the chosen variables
+
+Next we want to further see what the relationships between our independent variables and our dependent variable are. We will use cross-tabulations and box plots to do this.
+
+### Cross-tabulations
+
+From the cross-tabulation we can clearly see that the data appears to support our hypothesis. Mean of GII value, maternal mortality and adolescence birth rate are markedly higher for the countries with less than average mean years of schooling (i.e. Edu.high = FALSE). Further, the mean values of life expectancy and share of population with secondary schooling is markedly higher for the countries with higher than average mean years of schooling. 
+
+```{r}
+human_edu %>% group_by(Edu.high) %>% summarise(count = n(), mean_Life.Exp = mean(Life.Exp), mean_GII = mean(GII), mean_Mat.Mor = mean(Mat.Mor), mean_Ado.Birth = mean(Ado.Birth), mean_Edu2.F = mean(Edu2.F), mean_Edu2.M = mean(Edu2.M))
+```
+
+Our hypothesis also receive confirmation from the box plots drawn below:
+
+```{r}
+ggplot(human_edu, aes(x = Edu.high, y = Life.Exp)) + geom_boxplot() + ylab("Life.Exp") + ggtitle("Live longer, learn more")
+
+ggplot(human_edu, aes(x = Edu.high, y = GII)) + geom_boxplot() + ylab("GII") + ggtitle("Inequality associated with less schooling")
+
+ggplot(human_edu, aes(x = Edu.high, y = Mat.Mor)) + geom_boxplot() + ylab("Mat.Mor") + ggtitle("")
+
+ggplot(human_edu, aes(x = Edu.high, y = Ado.Birth)) + geom_boxplot() + ylab("Ado.Birth") + ggtitle("")
+
+ggplot(human_edu, aes(x = Edu.high, y = Edu2.F)) + geom_boxplot() + ylab("Edu2.F") + ggtitle("")
+
+ggplot(human_edu, aes(x = Edu.high, y = Edu2.M)) + geom_boxplot() + ylab("Edu2.M") + ggtitle("")
+
+```
 
 
 # 6. Methods
 
+To study the relationships between our variable of interest, Edu.high, and the independent variables, we will use logistic regression. Logistic regression should be used when the dependent variable is categorical or dichotomous (binary), i.e. can take only different values. These values can be 0 and 1, or TRUE and FALSE as they are in the present case. The logistic regression model enables us to estimate the probablity of a binary response on independent variables, which can also be called features or predictors.
+
+The most important difference between a logistic regression model and a linear regression model is in assumptions. As the outcomes are not linear, the assumptions of linear regression do not hold and residuals cannot be normally distributed. If linear regression is fitted to a dependent variable with binary values, the results are usually nonsensical. 
+
+It is worth noting that even though the concept of a binary dependent variable doesn't seem outlandish, the method of logistic regression was developed only in 1958.
+
+Note that cases when the dependent variable has more than two outcome values require using multinomial logistic regression. As our dependent variable takes only values TRUE or FALSE, we can use the simple logistic regression.
 
 
 # 7. Results
