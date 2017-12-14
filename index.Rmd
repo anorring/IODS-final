@@ -342,6 +342,39 @@ Note that cases when the dependent variable has more than two outcome values req
 
 # 7. Results
 
+In this part we will use logistic regression to gain more solid knowledge on the effect our chosen variables have on the target variable, the dichotomous Edu.high. 
+
+Let's start with fitting the logistic regression model. For the sake of recap, our variables are:
+
+|Dependent variable|Definition|
+|---|------------------------------------------------------------------------------------|
+|Edu.high|TRUE, if mean of school years more than average, FALSE otherwise|
+
+
+|Independent variables|Definition|
+|---|------------------------------------------------------------------------------------|
+|Life.Exp|Life expectancy at birth, years|
+|GII|Gender Inequality Index, value|
+|Mat.Mor|Maternal mortality ratio, deaths per 100,000 live births|
+|Ado.Birth|Adolescent birth rate, births per 1,000 women ages 15-19|
+|Edu2.F|Female population with at least some secondary education, % ages 25 and older|
+|Edu2.M|Male population with at least some secondary education, % ages 25 and older|
+
+
+## Fitting the model
+
+```{r, include=FALSE}
+
+colnames(human_edu)
+
+```
+
+```{r}
+m1 <- glm(Edu.high ~ Life.Exp + GII + Mat.Mor + Ado.Birth + Edu2.F + Edu2.M , data = human_edu, family = "binomial")
+summary(m1)
+```
+
+
 
 
 # 8. Conclusions and discussion
