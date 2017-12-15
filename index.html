@@ -1060,7 +1060,7 @@ cv &lt;- cv.glm(data = human_edu, cost = loss_func, glmfit = m4, K = 10)
 
 # average number of wrong predictions in the cross validation
 cv$delta[1]</code></pre>
-<pre><code>## [1] 0.08387097</code></pre>
+<pre><code>## [1] 0.09032258</code></pre>
 <p>A ten-fold cross-validation shows that on average approximately 8% of the observations are missclassified by our model with two explanatory variables. (Note that the cross-validation gives slightly different values for average share of wrong predictions because the data not used for fitting the model is chosen slightly different each time.)</p>
 <p>To see what the average share of wrong predictions would have been for the other specifications of our model, we can easily calculate them also:</p>
 <ul>
@@ -1071,7 +1071,7 @@ cv1 &lt;- cv.glm(data = human_edu, cost = loss_func, glmfit = m1, K = 10)
 
 # average number of wrong predictions in the cross validation
 cv1$delta[1]</code></pre>
-<pre><code>## [1] 0.07741935</code></pre>
+<pre><code>## [1] 0.09677419</code></pre>
 <ul>
 <li>for model 2 with five independent variables (Edu.high ~ Life.Exp + GII + Ado.Birth + Edu2.F + Edu2.M)</li>
 </ul>
@@ -1080,7 +1080,7 @@ cv2 &lt;- cv.glm(data = human_edu, cost = loss_func, glmfit = m2, K = 10)
 
 # average number of wrong predictions in the cross validation
 cv2$delta[1]</code></pre>
-<pre><code>## [1] 0.07741935</code></pre>
+<pre><code>## [1] 0.08387097</code></pre>
 <ul>
 <li>for model 3 with four independent variables (Edu.high ~ GII + Ado.Birth + Edu2.F + Edu2.M)</li>
 </ul>
@@ -1089,7 +1089,7 @@ cv3 &lt;- cv.glm(data = human_edu, cost = loss_func, glmfit = m3, K = 10)
 
 # average number of wrong predictions in the cross validation
 cv3$delta[1]</code></pre>
-<pre><code>## [1] 0.08387097</code></pre>
+<pre><code>## [1] 0.09032258</code></pre>
 <p>We can see that the share of wrong predictions does not change much across the specifications.</p>
 </div>
 </div>
