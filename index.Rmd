@@ -30,9 +30,18 @@ library(GGally)
 library(FactoMineR)
 ```
 
+# Abstract:
+
+In this final assignment I use logistic regression to find which variables can predict the probability of a given country achieving higher than average mean years of schooling. I use data from two UN indices, the Human Development Index and the Gender Inequality Index. I fit a logistic regression model to the data and calculate odds ratios. I also evaluate and validate the model using predictions and cross-validation.
+
+I find that a marginal increase in the share of female population receiving secondary schooling results in a 20 % increase in the probability of a country achieving higher than average mean years of schooling. The model is very simple, but it has surprisingly good predictive abilities, which lend it more credence. 
+
+
 # 1. Introduction
 
+It is well documented that education provides a myriad of good: on average, more educated people earn more, live longer, are more healthy and lead in general more happy and fulfilling lives than the ones that are less educated. There are also dramatic differences in the amount of schooling citizens of different countries receive. For example, children in Finland can expect to stay in school for over 17 years, whereas their peers in Niger can expect to receive less than 6 years of schooling.
 
+It is thus of interest to study what determines the levels of education across different countries. This is a multifaceted and complicated question well beyon the scope of a course work. I can however choose a small specific question to find an answer to. 
 
 # 2. Research question: Why do some countries manage to educate their citizens more than others?
 
@@ -250,7 +259,9 @@ corrplot.mixed(cor_matrix,number.cex=0.65,tl.cex=0.6)
 
 ```
 
-From the much simplified correlation plot above, we can see that the variables that display highest absolute correlation with Edu.high are share of both female and male population who recieve at least some secondary education (positive correlation), the Gender Inequality Index ranking and value of the country (negative correlation) and life expectancy (positive correlation). These are all perfectly plausible and intuitive relationships: it means that a country that manages to educate a larger share of its population, that treats its male and female citizens relatively equally and has high standards of living in terms of life expectancy will manage to keep its citizens in school for longer. Interestingly, contrary to our initial hypothesis, gross national income displays the lowest correlation with Edu.high among these variables. 
+From the much simplified correlation plot above, we can see that the variables that display highest absolute correlation with Edu.high are share of both female and male population who recieve at least some secondary education (positive correlation), the Gender Inequality Index ranking and value of the country (negative correlation) and life expectancy (positive correlation). These are all perfectly plausible and intuitive relationships: it means that a country that manages to educate a larger share of its population, that treats its male and female citizens relatively equally and has high standards of living in terms of life expectancy will manage to keep its citizens in school for longer. 
+
+Interestingly, contrary to our initial hypothesis, gross national income displays the lowest correlation with Edu.high among these variables. Our two other initial hypothesis seem to be confirmed by the data.
 
 ## Simplifying things
 
@@ -292,14 +303,15 @@ Based on this analysis we will choose our independent variables to be the follow
 |Edu2.F|Female population with at least some secondary education, % ages 25 and older|positive|
 |Edu2.M|Male population with at least some secondary education, % ages 25 and older|positive|
 
-Let's formulate our **hypothesis** as: the mean years of schooling is likely to be higher than average in countries
+Let's formulate our data driven **hypothesis** as: the mean years of schooling is likely to be higher than average in countries
 
 - where there is gender equality, reflected by a low GII index
 - where a larger share of especially the female, but also male population receives secondary education
 - where social norms encourage staying in school, reflected by low rates of adolescent births
+- where people tend to live longer lives, reflected by life expectancy
 - where health care is adequate, reflected my low rates of maternal mortality
 
-## A closer on the chosen variables
+## A closer look on the chosen variables
 
 Next we want to further see what the relationships between our independent variables and our dependent variable are. We will use cross-tabulations and box plots to do this.
 
@@ -311,25 +323,29 @@ From the cross-tabulation we can clearly see that the data appears to support ou
 human_edu %>% group_by(Edu.high) %>% summarise(count = n(), mean_Life.Exp = mean(Life.Exp), mean_GII = mean(GII), mean_Mat.Mor = mean(Mat.Mor), mean_Ado.Birth = mean(Ado.Birth), mean_Edu2.F = mean(Edu2.F), mean_Edu2.M = mean(Edu2.M))
 ```
 
-Our hypothesis also receive confirmation from the box plots drawn below:
+### Box-plots
+
+Our hypothesis also receive confirmation from the box plots drawn below: the two boxes in each of the plots are clearly in different.
 
 ```{r}
-ggplot(human_edu, aes(x = Edu.high, y = Life.Exp)) + geom_boxplot() + ylab("Life.Exp") + ggtitle("Live longer, learn more")
+ggplot(human_edu, aes(x = Edu.high, y = Life.Exp)) + geom_boxplot() + ylab("Life.Exp") + ggtitle("Longer life expectancy ~ more schooling")
 
-ggplot(human_edu, aes(x = Edu.high, y = GII)) + geom_boxplot() + ylab("GII") + ggtitle("Inequality associated with less schooling")
+ggplot(human_edu, aes(x = Edu.high, y = GII)) + geom_boxplot() + ylab("GII") + ggtitle("Gender inequality ~ less schooling")
 
-ggplot(human_edu, aes(x = Edu.high, y = Mat.Mor)) + geom_boxplot() + ylab("Mat.Mor") + ggtitle("")
+ggplot(human_edu, aes(x = Edu.high, y = Mat.Mor)) + geom_boxplot() + ylab("Mat.Mor") + ggtitle("Maternal mortality ~ less schooling")
 
-ggplot(human_edu, aes(x = Edu.high, y = Ado.Birth)) + geom_boxplot() + ylab("Ado.Birth") + ggtitle("")
+ggplot(human_edu, aes(x = Edu.high, y = Ado.Birth)) + geom_boxplot() + ylab("Ado.Birth") + ggtitle("Adolescent mothers ~ less schooling")
 
-ggplot(human_edu, aes(x = Edu.high, y = Edu2.F)) + geom_boxplot() + ylab("Edu2.F") + ggtitle("")
+ggplot(human_edu, aes(x = Edu.high, y = Edu2.F)) + geom_boxplot() + ylab("Edu2.F") + ggtitle("More educated women ~ more schooling")
 
-ggplot(human_edu, aes(x = Edu.high, y = Edu2.M)) + geom_boxplot() + ylab("Edu2.M") + ggtitle("")
+ggplot(human_edu, aes(x = Edu.high, y = Edu2.M)) + geom_boxplot() + ylab("Edu2.M") + ggtitle("More educated men ~ more schooling")
 
 ```
 
 
 # 6. Methods
+
+## Logistic regression
 
 To study the relationships between our variable of interest, Edu.high, and the independent variables, we will use logistic regression. Logistic regression should be used when the dependent variable is categorical or dichotomous (binary), i.e. can take only different values. These values can be 0 and 1, or TRUE and FALSE as they are in the present case. The logistic regression model enables us to estimate the probablity of a binary response on independent variables, which can also be called features or predictors.
 
@@ -339,6 +355,21 @@ It is worth noting that even though the concept of a binary dependent variable d
 
 Note that cases when the dependent variable has more than two outcome values require using multinomial logistic regression. As our dependent variable takes only values TRUE or FALSE, we can use the simple logistic regression.
 
+## Odds ratios 
+
+With logistic regression, the summary of the results the model gives as per se do not tell that much about the quantity of the effects we are documenting. To be able to evaluate the magnitude of the effects the independent variables have on the dependent variables we have to calculate the odds and the odds ratios.
+
+The odds of the dependent variable are equivalent to the exponential function of the linear regression expression. That is
+
+> $ odds = \epsilon^{\beta_0 + \beta_1 x}$, where x is some linear combination of the predictors.
+
+The odds ratio can then be defined as 
+
+> $ OR = \frac{odds(x+1)}{odds(x)}$.
+
+## Predictions
+
+A logistic regression model is evaluated and validated by studying its predictive abilities. This can be done by letting the model predict the value of the dependent variable based on the independent variables, i.e. predictors, and then comparing the predictions to the actual observations. One can also calculate a training error for the model, whic gives the total proportion of inaccurately classified individuals, and perform a cross-validation on the model.
 
 # 7. Results
 
@@ -363,20 +394,213 @@ Let's start with fitting the logistic regression model. For the sake of recap, o
 
 ## Fitting the model
 
+From the summary of the model we can see that only one part of our hypothesis is in fact confirmed to be statistically signifincant: only the share of female population is statistically significant on the 0.001 confidence level, while the effect of all other independent variables remains statistically indifferent from zero. There's no point in being discouraged however - let's instead try what happens if we drop the least significant variable from the regression, i.e. the one with the lowest z value. This variable is maternal mortality.  
+
 ```{r, include=FALSE}
 
 colnames(human_edu)
 
 ```
-
 ```{r}
 m1 <- glm(Edu.high ~ Life.Exp + GII + Mat.Mor + Ado.Birth + Edu2.F + Edu2.M , data = human_edu, family = "binomial")
 summary(m1)
 ```
 
+Our second iteration of the model thus studies the effect of five independent variables on the dependent variable. The model is fitted and its summary is printed below:
 
+```{r}
+m2 <- glm(Edu.high ~ Life.Exp + GII + Ado.Birth + Edu2.F + Edu2.M , data = human_edu, family = "binomial")
+summary(m2)
+```
+
+It may seem that nothing much has changed, as the only independent variable to have a statistically significant effect is still Edu2.F. But look closer, and you'll notice that the z values of variables except GII have edged upwards. Let's thus continue in the same manner and drop the variable that now has the lowest z value, i.e. life expectancy. 
+
+
+```{r}
+m3 <- glm(Edu.high ~ GII + Ado.Birth + Edu2.F + Edu2.M , data = human_edu, family = "binomial")
+summary(m3)
+```
+
+Now we can see even more changes. Edu2.F remains statistically significant at the 0.001 level, but now also the effect of GII becomes statistically significant, although only on the modest level of 0.1.
+
+**Interestingly, it thus seems that education is not so much a matter of standards of living or health, as it is about gender equality.**
+
+Based on these results, let's fit one more model, with only GII and Edu2.F as the independent variables. This will be our final model, for which we will calculate the odds ratios and their confidence intervals. This way we can quantify the effect between our explanatory variables and target variable. We will also use this version of the model to test its predictive power.
+
+```{r}
+m4 <- glm(Edu.high ~ GII + Edu2.F , data = human_edu, family = "binomial")
+summary(m4)
+```
+
+Now the effect of Edu2.F is highly significant, whereas the effect of GII remains modestly significant.
+
+## Odds ratios and confidence intervals
+
+Next we will present and interpret the coefficients of the model as odds ratios and calculate their confidence intervals. 
+
+As we are working with a logistic regression, we can interpret the odds ratios for non-binary variables as odds ratios between a unit change vs. no change in the corresponding explanatory variable. Thus the odds ratio of "Edu2.F", 1.2, can be interpreted as the ratio between the odds of a country schooling 1 % more of it's female population having a higher than average mean years of schooling and the odds of a country that doesn't increase schooling of girls having a higher than average mean years of schooling. That is
+
+> $OR = \frac{Pr(Edu.high = 1 | \Delta Edu2.F = 1 \% )}{Pr(Edu.high = 1 | \Delta Edu2.F = 0 \% )}$
+
+and for our other independent variable GII:
+
+> $OR = \frac{Pr(Edu.high = 1 | \Delta GII = 1 )}{Pr(Edu.high = 1 | \Delta GII = 0 )}$
+
+Now let's calculate the odds ratios and their confidence intervals. Note that the odds ratio for positive effect should be larger than one and for negative effect less than one. 
+
+```{r, include = FALSE}
+# compute odds ratios (OR)
+OR <- coef(m4) %>% exp
+
+# compute confidence intervals (CI)
+CI <- confint(m4) %>% exp
+
+```
+
+
+```{r}
+# print out the odds ratios (OR) with their confidence intervals (CI)
+cbind(OR, CI)
+```
+
+This is indeed what we can see from the calculated odds ratios: the OR for GII is 0.005 and for Edu2.F 1.2. This means that countries that marginally increase the share of female population who receive secondary schooling by one percent, have a 20 % higher probability of reaching higher than average mean years of schooling. This increase is very high indeed! Our other predictor has a much less dramatic effect: a unity increase in GII (i.e. more inequality between sexes) will result in 0,5 % smaller probability of the country achieving higher than average mean years of schooling.
+
+Note however that the confidence interval of GII includes 1, which means that its effect may infact be statistically indifferent from zero. This is not that surprising, if one recalls that in the logistic regression the effect of GII was only significant at the lowest possible confidence level.
+
+## Predictions
+
+Now we will evaluate our model by studying its predictive abilities. 
+
+We can use the predict() function to make predictions from this model. We start by adding two columns to our data set: "probability" with the predicted probabilities and "prediction" which takes value TRUE if the value of "probability" is larger than 0.5. 
+
+```{r, warning = FALSE}
+# predict() the probability of high_use
+probabilities <- predict(m4, type = "response")
+
+# add the predicted probabilities to 'alc'
+human_edu <- mutate(human_edu, probability = probabilities)
+
+# use the probabilities to make a prediction of high_use
+human_edu <- mutate(human_edu, prediction = probability>0.5)
+
+```
+
+Next, let's take a look at the first ten and the last ten rows of our data set. We can see that the predictions are correct in all these cases.
+
+```{r, warning = FALSE}
+
+# see the first and the last ten original classes, predicted probabilities, and class predictions
+dplyr::select(human_edu, Edu.high, Edu2.F, GII, probability, prediction) %>% head(10)
+dplyr::select(human_edu, Edu.high, Edu2.F, GII, probability, prediction) %>% tail(10)
+```
+
+However, that doesn't mean that our model is perfect in predicting the outcome. We can take a better look at the actual predictive performance of our model by the help of the following cross tabulations:
+
+```{r}
+# tabulate the target variable versus the predictions
+table(Edu.high = human_edu$Edu.high, prediction = human_edu$prediction)
+
+# tabulate the target variable versus the predictions with margings:
+table(Edu.high = human_edu$Edu.high, prediction = human_edu$prediction) %>% prop.table() %>% addmargins()
+```
+
+From the first 2x2 cross tabulation of predictions versus the actual values we can see that our model is not indeed perfect, but it is surprisingly good. In 8 cases our model predicted a country to have more than average mean years of schooling, when in fact the country had less, and vice versa in 5 cases. On the other hand, in 142 cases the prediction is correct. 
+
+From the second table we can see the share of correct and incorrect predictions. In 5.1 % of cases our model predicted TRUE when FALSE was correct and vice versa in 3.2 % of cases. That is, in only 8.3 % of the cases the prediction was incorrect, which seems quite a good fit.
+
+We can also see this in a graph that plots the true values against the predictions. Most observations for countries with more than average years of schooling, i.e. Edu.high = TRUE, are blue, i.e. predicted TRUE. The case for less than average years of schooling, i.e. Edu.high = FALSE is the oppposite, that is, most of the dots are red. 
+
+```{r}
+# initialize a plot of 'high_use' versus 'probability' in 'alc'
+g <- ggplot(human_edu, aes(x = probability, y = Edu.high, col = prediction))
+
+# define the geom as points and draw the plot
+g + geom_point()
+```
+
+## Training error
+
+Further, we can to compute the total proportion of inaccurately classified individuals, or the the training error. For this purpose we will define a loss function and then calculate the average number of wrong predictions in the training data. The last result gives the training error, which is 8.3 %. Note that this is equal to the sum of the shares of incorrectly predicted observations, calculated above.
+
+```{r}
+# define a loss function (mean prediction error)
+loss_func <- function(class, prob) {
+  n_wrong <- abs(class - prob) > 0.5
+  mean(n_wrong)
+}
+
+# call loss_func to compute the average number of wrong predictions in the (training) data
+loss_func(class = human_edu$Edu.high, prob = 0)
+
+loss_func(class = human_edu$Edu.high, prob = 1)
+
+loss_func(class = human_edu$Edu.high, human_edu$probability)
+```
+
+## Cross-validation
+
+The last thing we presently do to test our models validity, is a cross-validation. Cross-validation is a method of testing a predictive model on unseen data. In cross-validation, the value of a loss function is computed on data not used for finding the model. Cross-validation gives a good sense of the actual predictive power of the model.
+
+We will perform a 10-fold cross-validation for our model:
+
+```{r}
+# 10-fold cross-validation
+cv <- cv.glm(data = human_edu, cost = loss_func, glmfit = m4, K = 10)
+
+# average number of wrong predictions in the cross validation
+cv$delta[1]
+```
+
+A ten-fold cross-validation shows that on average approximately 8% of the observations are missclassified by our model with two explanatory variables. (Note that the cross-validation gives slightly different values for average share of wrong predictions because the data not used for fitting the model is chosen slightly different each time.)
+
+To see what the average share of wrong predictions would have been for the other specifications of our model, we can easily calculate them also:
+
+- for model 1 with six independent variables (Edu.high ~ Life.Exp + GII + Mat.Mor + Ado.Birth + Edu2.F + Edu2.M)
+```{r}
+# 10-fold cross-validation
+cv1 <- cv.glm(data = human_edu, cost = loss_func, glmfit = m1, K = 10)
+
+# average number of wrong predictions in the cross validation
+cv1$delta[1]
+```
+
+- for model 2 with five independent variables (Edu.high ~ Life.Exp + GII + Ado.Birth + Edu2.F + Edu2.M)
+```{r}
+# 10-fold cross-validation
+cv2 <- cv.glm(data = human_edu, cost = loss_func, glmfit = m2, K = 10)
+
+# average number of wrong predictions in the cross validation
+cv2$delta[1]
+```
+
+- for model 3 with four independent variables (Edu.high ~ GII + Ado.Birth + Edu2.F + Edu2.M)
+```{r}
+# 10-fold cross-validation
+cv3 <- cv.glm(data = human_edu, cost = loss_func, glmfit = m3, K = 10)
+
+# average number of wrong predictions in the cross validation
+cv3$delta[1]
+```
+
+We can see that the share of wrong predictions does not change much across the specifications.
 
 
 # 8. Conclusions and discussion
+
+We have used a logistic regression model to study whether the different variables that form the Human Development Index and the Gender Inequality Index can be used to determine if a given country has achieved a higher than average mean years of schooling. We found that of these variables, the share of female population receiving secondary education is the most important predictor of higher than average education in a given country. We found that the more a country educates its girls, the higher is the probability of it offering longer than average schooling in general. Also the GII index value plays a role: the smaller the value, i.e. the more equal the country is, the longer its population stays in school.
+
+Our results suggest the following: 
+
+1. Countries that marginally increase the share of female population who receive secondary schooling by one percent, have a 20 % higher probability of reaching higher than average mean years of schooling.
+2. A unity increase in GII (i.e. more inequality between sexes) will result in 0,5 % smaller probability of the country achieving higher than average mean years of schooling.
+
+The results are quite interesing, because they suggest that longer schooling is first of all a matter of gender equality. That is, in those countries where girls a likely to receive the same opportunities in terms of education and in other parts of the society, also boys will benefit, because everyone will receive on average more education. 
+
+There are naturally caveats to keep in mind. First of all, our model was very simple and the variables were limited to these two indeces and their components. One should also keep in mind that correlation does not imply causality. That is, we cannot really say that educating girls results in longer schooling for all, as it might just as well be that girls receive more schooling in these countries precisely because they offer longer than average schooling.
+
+However, our chosen method and model performed surprisingly well when evaluated in terms of their predictive power. Our model was able to predict the correct value for the target value in all but 8 % of observations. This is a very good fit.
+
+
+
 
 
